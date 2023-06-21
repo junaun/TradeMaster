@@ -44,7 +44,7 @@ class HighFrequencyTradingEnvironment(Environments):
         )
         self.tech_indicator_list = get_attr(self.dataset, "tech_indicator_list", [])
         self.stack_length = get_attr(self.dataset, "backward_num_timestamp", 1)
-        self.max_holding_number = get_attr(self.dataset, "max_holding_number", 0.01)
+        self.max_holding_number = get_attr(self.dataset, "max_holding_number", 0.1)
 
         if self.task.startswith("test_dynamic"):
             dynamics_test_path = get_attr(kwargs, "dynamics_test_path", None)
