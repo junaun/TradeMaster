@@ -225,7 +225,7 @@ class HighFrequencyTradingEnvironment(Environments):
             cash, actual_position_change = self.sell_value(
                 previous_price_information, self.sell_size
             )
-            print("cash,sell value:", cash)
+            print("cash,hold or sell value:", cash)
             self.sell_money_memory.append(cash)
             self.needed_money_memory.append(0)
             self.position = self.previous_position - actual_position_change
@@ -246,14 +246,14 @@ class HighFrequencyTradingEnvironment(Environments):
             self.reward_history.append(self.reward)
 
         if previous_position < position:
-            # sell some of the position
+            # the agent has bought some position
             self.buy_size = position - previous_position
             needed_cash, actual_position_change = self.buy_value(
                 previous_price_information, self.buy_size
             )
             self.needed_money_memory.append(needed_cash)
             self.sell_money_memory.append(0)
-
+            print("needed_cash,buy value:", needed_cash)
             self.position = self.previous_position + actual_position_change
             previous_value = self.calculate_value(
                 previous_price_information, self.previous_position
@@ -265,7 +265,7 @@ class HighFrequencyTradingEnvironment(Environments):
             return_rate = (current_value - needed_cash - previous_value) / (
                 previous_value + needed_cash
             )
-
+            print("reward:", self.reward)j
             self.reward_history.append(self.reward)
             self.return_rate = return_rate
             # print("buy_return_rate", return_rate)
