@@ -206,11 +206,11 @@ class HighFrequencyTradingEnvironment(Environments):
         # 此处的action应为仓位变化
         normlized_action = action / (self.action_dim - 1)
         position = self.max_holding_number * normlized_action
-        print("position:", position)
+        print("position: {:.8f}".format(position))
         # 目前没有future embedding day代表最新一天的信息
         self.terminal = self.day >= len(self.df.index.unique()) - 1
         previous_position = self.previous_position
-        print("previous_position:", previous_position)
+        print("previous_position: {:.8f}".format(previous_position))
         previous_price_information = self.data.iloc[-1]
         self.day += 1
         self.data = self.df.iloc[self.day - self.stack_length : self.day]
@@ -225,7 +225,7 @@ class HighFrequencyTradingEnvironment(Environments):
             cash, actual_position_change = self.sell_value(
                 previous_price_information, self.sell_size
             )
-            print("cash,hold or sell value:", cash)
+            print("cash,hold or sell value: {:.8f}".format(cash))
             self.sell_money_memory.append(cash)
             self.needed_money_memory.append(0)
             self.position = self.previous_position - actual_position_change
@@ -253,7 +253,7 @@ class HighFrequencyTradingEnvironment(Environments):
             )
             self.needed_money_memory.append(needed_cash)
             self.sell_money_memory.append(0)
-            print("needed_cash,buy value:", needed_cash)
+            print("needed_cash,buy value: {:.8f}".format(needed_cash))
             self.position = self.previous_position + actual_position_change
             previous_value = self.calculate_value(
                 previous_price_information, self.previous_position
