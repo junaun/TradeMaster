@@ -206,11 +206,11 @@ class HighFrequencyTradingEnvironment(Environments):
         # 此处的action应为仓位变化
         normlized_action = action / (self.action_dim - 1)
         position = self.max_holding_number * normlized_action
-        print("\nposition:", position)
+        print("position:", position)
         # 目前没有future embedding day代表最新一天的信息
         self.terminal = self.day >= len(self.df.index.unique()) - 1
         previous_position = self.previous_position
-        print("\nprevious_position:", previous_position)
+        print("previous_position:", previous_position)
         previous_price_information = self.data.iloc[-1]
         self.day += 1
         self.data = self.df.iloc[self.day - self.stack_length : self.day]
@@ -225,6 +225,7 @@ class HighFrequencyTradingEnvironment(Environments):
             cash, actual_position_change = self.sell_value(
                 previous_price_information, self.sell_size
             )
+            print("cash,sell value:", cash)
             self.sell_money_memory.append(cash)
             self.needed_money_memory.append(0)
             self.position = self.previous_position - actual_position_change
@@ -235,6 +236,7 @@ class HighFrequencyTradingEnvironment(Environments):
                 current_price_information, self.position
             )
             self.reward = current_value + cash - previous_value
+            print("reward:", self.reward)
             # 如果第一开始就是0而且没买
             if previous_value == 0:
                 return_rate = 0
@@ -310,7 +312,7 @@ class HighFrequencyTradingEnvironment(Environments):
                     # "Sortino Ratio": ["{:04f}".format(sor)],
                     # "Require Money": ["{:01f}".format(required_money)],
                     # "Commission fee": ["{:01f}".format(commission_fee)],
-                    "Average holding length": ["{:01f}s".format(ahl)],
+                    # "Average holding length": ["{:01f}s".format(ahl)],
                 }
             )
             table = print_metrics(stats)
