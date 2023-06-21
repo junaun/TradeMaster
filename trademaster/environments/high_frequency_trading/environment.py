@@ -265,7 +265,7 @@ class HighFrequencyTradingEnvironment(Environments):
             return_rate = (current_value - needed_cash - previous_value) / (
                 previous_value + needed_cash
             )
-            print("reward:", self.reward)j
+            print("reward:", self.reward)
             self.reward_history.append(self.reward)
             self.return_rate = return_rate
             # print("buy_return_rate", return_rate)
