@@ -549,7 +549,7 @@ class YfinancePreprocessor(CustomPreprocessor):
           self.df = self.download_data()
         else:
           self.df = pd.read_csv(custom_data_path)
-        self.df = self.download_data()
+        # self.df = self.download_data()
         self.df = self.df.rename(columns={
             "Open":"open",
             "High":"high",
