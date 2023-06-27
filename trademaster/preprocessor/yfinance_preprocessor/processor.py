@@ -24,7 +24,7 @@ class YfinancePreprocessor(CustomPreprocessor):
         self.data_path = osp.join(ROOT, get_attr(kwargs, "data_path", None))
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path)
-        self.train_valid_test_portion = get_attr(kwargs,"train_valid_test_portion", [0.8, 0.1, 0.1])
+        self.train_valid_test_portion = get_attr(kwargs,"train_valid_test_portion", [0.7, 0.15, 0.15])
 
         self.train_path = osp.join(ROOT, get_attr(kwargs, "train_path", None))
         self.valid_path = osp.join(ROOT, get_attr(kwargs, "valid_path", None))
