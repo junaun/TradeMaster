@@ -31,7 +31,7 @@ class YfinancePreprocessor(CustomPreprocessor):
         self.test_path = osp.join(ROOT, get_attr(kwargs, "test_path", None))
 
         # self.start_date = get_attr(kwargs, "start_date", "2000-01-01")
-        self.start_date = get_attr(kwargs, "start_date", "2023-04-30")
+        self.start_date = get_attr(kwargs, "start_date", "2023-05-30")
         # self.end_date = get_attr(kwargs, "end_date", "2019-01-01")
         self.end_date = get_attr(kwargs, "end_date", "2023-06-27")
         self.tickers = get_attr(kwargs, "tickers", None)
