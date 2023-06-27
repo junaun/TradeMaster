@@ -275,7 +275,7 @@ class AlgorithmicTradingTrainer(Trainer):
 
         print("Test Best Episode")
         state = self.test_environment.reset()
-        print(f"s0: {state}")
+        # print(f"s0: {state}")
         episode_reward_sum = 0
         while True:
             tensor_state = torch.as_tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
@@ -286,7 +286,7 @@ class AlgorithmicTradingTrainer(Trainer):
                 0]  # not need detach(), because using torch.no_grad() outside
             print(f"action: {action}")
             state, reward, done, save_dict = self.test_environment.step(action)
-            print(f"s1: {state}")
+            # print(f"s1: {state}")
             episode_reward_sum += reward
             if done:
                 # print("Test Best Episode Reward Sum: {:04f}".format(episode_reward_sum))

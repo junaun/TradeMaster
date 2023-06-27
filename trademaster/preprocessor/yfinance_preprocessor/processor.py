@@ -41,7 +41,7 @@ class YfinancePreprocessor(CustomPreprocessor):
         df_list = []
         self.tickers = ["BTC-USD"]
         for ticker in self.tickers:
-            df = yf.download(ticker, self.start_date, self.end_date)
+            df = yf.download(ticker, self.start_date, self.end_date, interval = "15m")
             df["ticker"] = ticker
             df.index = df.index.values
             df_list.append(df)
