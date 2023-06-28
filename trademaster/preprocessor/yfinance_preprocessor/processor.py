@@ -31,17 +31,17 @@ class YfinancePreprocessor(CustomPreprocessor):
         self.test_path = osp.join(ROOT, get_attr(kwargs, "test_path", None))
 
         # self.start_date = get_attr(kwargs, "start_date", "2000-01-01")
-        self.start_date = get_attr(kwargs, "start_date", "2023-05-30")
+        self.start_date = get_attr(kwargs, "start_date", "2014-01-1")
         # self.end_date = get_attr(kwargs, "end_date", "2019-01-01")
         self.end_date = get_attr(kwargs, "end_date", "2023-06-27")
         self.tickers = get_attr(kwargs, "tickers", None)
-
         self.indicator = get_attr(kwargs, "indicator", 'basic')
+
     def download_data(self):
         df_list = []
         self.tickers = ["BTC-USD"]
         for ticker in self.tickers:
-            df = yf.download(ticker, start = self.start_date, end = self.end_date, interval = "15m")
+            df = yf.download(ticker, start = self.start_date, end = self.end_date)
             print("Downloaded: ", ticker)
             df["ticker"] = ticker
             df.index = df.index.values
