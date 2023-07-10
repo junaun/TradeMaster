@@ -83,6 +83,7 @@ class AlgorithmicTradingEnvironment(Environments):
         self.state = self.state + self.compound_memory[-1]
         self.state = np.array(self.state)
         self.test_id='agent'
+        self.action_list = []
 
     def reset(self):
         # here is a little difference: we only have one asset
@@ -118,6 +119,7 @@ class AlgorithmicTradingEnvironment(Environments):
         self.terminal = self.day >= len(
             self.df.index.unique()) - self.forward_num_day - 1
         if self.terminal:
+            print(self.action_list)
             if self.task.startswith("test_dynamic"):
                 print(f'Date from {self.start_date} to {self.end_date}')
             tr, sharpe_ratio, vol, mdd, cr, sor = self.analysis_result()
@@ -187,6 +189,8 @@ class AlgorithmicTradingEnvironment(Environments):
             # self.actions_counter+=1
             # print('self.actions_counter ',self.actions_counter)
             buy_volume = action - self.max_volume
+            self.action_list.append(action)
+            print(f'action is {action}, buy_volume is {buy_volume}')
             # print('buy_volume is: ', buy_volume, type(buy_volume))
             hold_volume = self.compound_memory[-1][1] + buy_volume
             # print('hold_volume is: ', hold_volume, type(hold_volume))
