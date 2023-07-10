@@ -239,6 +239,7 @@ class AlgorithmicTradingEnvironment(Environments):
             self.reward = compound[1] * (
                     (new_price - old_price) + self.future_weights *
                     (newer_price - old_price))
+            print('reward is: ', self.reward)
             self.state = [
                 self.data[tech].values.tolist()
                 for tech in self.tech_indicator_list
