@@ -192,9 +192,9 @@ class AlgorithmicTradingEnvironment(Environments):
             if action == 0:
                 print('selling')
                 self.action_list.append(action)
-            else if action == 1:
+            elif action == 1:
                 print('holding')
-            else if action == 2:
+            elif action == 2:
                 print('buying')
                 self.action_list.append(action)
             # print('buy_volume is: ', buy_volume, type(buy_volume))
