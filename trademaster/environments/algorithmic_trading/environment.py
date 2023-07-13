@@ -246,7 +246,7 @@ class AlgorithmicTradingEnvironment(Environments):
             # self.reward = compound[1] * (
             #         (new_price - old_price) + self.future_weights *
             #         (newer_price - old_price))
-            if action == -1 and self.action_list[-1] == 1:
+            if action == -1 and  previous_action == 1:
                 if  gross_profit > 0:
                     self.reward = 100
                 else:
@@ -269,6 +269,7 @@ class AlgorithmicTradingEnvironment(Environments):
             self.future_data = self.df.iloc[self.day - 1:self.day +
                                                          self.forward_num_day, :]
             self.date_memory.append(self.data.date.unique()[-1])
+            previous_action = action
             close_price_list = self.future_data.close.tolist()
             labels = []
             for i in range(len(close_price_list) - 1):
