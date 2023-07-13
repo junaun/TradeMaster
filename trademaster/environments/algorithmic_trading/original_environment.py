@@ -252,9 +252,8 @@ class AlgorithmicTradingEnvironment(Environments):
                 else:
                     self.reward = -100
             else:
-                self.reward = 0
 
-            print(f'gross profit: {gross_profit}, reward: {self.reward}')
+            print('reward is: ', self.reward)
             self.state = [
                 self.data[tech].values.tolist()
                 for tech in self.tech_indicator_list
