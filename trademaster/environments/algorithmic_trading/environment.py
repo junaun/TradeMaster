@@ -254,7 +254,7 @@ class AlgorithmicTradingEnvironment(Environments):
             #         self.reward = gross_profit*2
             # else:
             #     self.reward = 0
-            self.reward = (cash + hold_volume * new_price) - self.portfolio_value
+            self.reward = (cash + hold_volume * new_price) - self.initial_amount
 
             print(f'gross profit: {gross_profit}, reward: {self.reward}')
             self.state = [
