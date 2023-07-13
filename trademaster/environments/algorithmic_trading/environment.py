@@ -84,6 +84,7 @@ class AlgorithmicTradingEnvironment(Environments):
         self.state = np.array(self.state)
         self.test_id='agent'
         self.action_list = []
+        self.previous_action = -1
 
     def reset(self):
         # here is a little difference: we only have one asset
@@ -246,7 +247,7 @@ class AlgorithmicTradingEnvironment(Environments):
             # self.reward = compound[1] * (
             #         (new_price - old_price) + self.future_weights *
             #         (newer_price - old_price))
-            if action == 0 and  previous_action == 2:
+            if action == 0 and  self.previous_action == 2:
                 if  gross_profit > 0:
                     self.reward = 100
                 else:
@@ -269,7 +270,7 @@ class AlgorithmicTradingEnvironment(Environments):
             self.future_data = self.df.iloc[self.day - 1:self.day +
                                                          self.forward_num_day, :]
             self.date_memory.append(self.data.date.unique()[-1])
-            previous_action = action
+            self.previous_action = action
             close_price_list = self.future_data.close.tolist()
             labels = []
             for i in range(len(close_price_list) - 1):
