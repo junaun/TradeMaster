@@ -249,9 +249,9 @@ class AlgorithmicTradingEnvironment(Environments):
             #         (newer_price - old_price))
             if action == 0 and  self.previous_action == 2:
                 if  gross_profit > 0:
-                    self.reward = 100
+                    self.reward = gross_profit 
                 else:
-                    self.reward = -100
+                    self.reward = gross_profit*2
             else:
                 self.reward = 0
 
