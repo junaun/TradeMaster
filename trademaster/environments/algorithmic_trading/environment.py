@@ -246,7 +246,7 @@ class AlgorithmicTradingEnvironment(Environments):
             # self.reward = compound[1] * (
             #         (new_price - old_price) + self.future_weights *
             #         (newer_price - old_price))
-            if action == -1 and  previous_action == 1:
+            if action == 0 and  previous_action == 2:
                 if  gross_profit > 0:
                     self.reward = 100
                 else:
