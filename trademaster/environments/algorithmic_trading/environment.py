@@ -256,7 +256,7 @@ class AlgorithmicTradingEnvironment(Environments):
                 self.reward = 0
 
             if self.previous_action == action:
-                self.reward -= 10000
+                self.reward  = self.reward - 1000
             print(f'gross profit: {gross_profit}, reward: {self.reward}')
             self.state = [
                 self.data[tech].values.tolist()
