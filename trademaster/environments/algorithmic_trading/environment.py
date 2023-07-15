@@ -243,19 +243,20 @@ class AlgorithmicTradingEnvironment(Environments):
             newer_price = self.df.iloc[self.day + self.forward_num_day -
                                        2].close
             gross_profit = new_price - old_price
-            #hindsight reward
+            # hindsight reward
             # self.reward = compound[1] * (
             #         (new_price - old_price) + self.future_weights *
             #         (newer_price - old_price))
-            # if action == 0 and  self.previous_action == 2:
-            #     if  gross_profit > 0:
-            #         self.reward = gross_profit 
-            #     else:
-            #         self.reward = gross_profit*2
-            # else:
-            #     self.reward = 0
-            self.reward = (cash + hold_volume * new_price) - self.initial_amount
+            if action == 0 and  self.previous_action == 2:
+                if  gross_profit > 0:
+                    self.reward = gross_profit 
+                else:
+                    self.reward = gross_profit*2
+            else:
+                self.reward = 0
 
+            if self.previous_action == action:
+                self.reward -= 10000
             print(f'gross profit: {gross_profit}, reward: {self.reward}')
             self.state = [
                 self.data[tech].values.tolist()
