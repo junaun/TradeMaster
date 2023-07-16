@@ -84,6 +84,7 @@ class AlgorithmicTradingEnvironment(Environments):
         self.state = np.array(self.state)
         self.test_id='agent'
         self.action_list = []
+        self.previous_action = -1
 
     def reset(self):
         # here is a little difference: we only have one asset
@@ -192,9 +193,9 @@ class AlgorithmicTradingEnvironment(Environments):
             if action == 0:
                 print('selling')
                 self.action_list.append(action)
-            else if action == 1:
+            elif action == 1:
                 print('holding')
-            else if action == 2:
+            elif action == 2:
                 print('buying')
                 self.action_list.append(action)
             # print('buy_volume is: ', buy_volume, type(buy_volume))
@@ -242,18 +243,21 @@ class AlgorithmicTradingEnvironment(Environments):
             newer_price = self.df.iloc[self.day + self.forward_num_day -
                                        2].close
             gross_profit = new_price - old_price
-            #hindsight reward
+            # hindsight reward
             # self.reward = compound[1] * (
             #         (new_price - old_price) + self.future_weights *
             #         (newer_price - old_price))
-            if action == -1 and self.action_list[-1] == 2:
+            if action == 0 and  self.previous_action == 2:
                 if  gross_profit > 0:
-                    self.reward = 100
+                    self.reward = gross_profit 
                 else:
-                    self.reward = -100
+                    self.reward = gross_profit*2
             else:
+                self.reward = 0
 
-            print('reward is: ', self.reward)
+            if self.previous_action == action:
+                self.reward  = self.reward - 1000
+            print(f'gross profit: {gross_profit}, reward: {self.reward}')
             self.state = [
                 self.data[tech].values.tolist()
                 for tech in self.tech_indicator_list
@@ -268,6 +272,7 @@ class AlgorithmicTradingEnvironment(Environments):
             self.future_data = self.df.iloc[self.day - 1:self.day +
                                                          self.forward_num_day, :]
             self.date_memory.append(self.data.date.unique()[-1])
+            self.previous_action = action
             close_price_list = self.future_data.close.tolist()
             labels = []
             for i in range(len(close_price_list) - 1):

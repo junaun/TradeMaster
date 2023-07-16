@@ -3,13 +3,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-ROOT = str(Path(__file__).resolve().parents[2])
-sys.path.append(ROOT)
+# ROOT = str(Path(__file__).resolve().parents[2])
+# sys.path.append(ROOT)
 import numpy as np
-from trademaster.utils import get_attr, print_metrics
+# from trademaster.utils import get_attr, print_metrics
 import pandas as pd
-from ..custom import Environments
-from ..builder import ENVIRONMENTS
+# from ..custom import Environments
+# from ..builder import ENVIRONMENTS
 from gym import spaces
 from collections import OrderedDict
 import pickle
@@ -21,11 +21,11 @@ class AlgorithmicTradingEnvironment(Environments):
     def __init__(self, **kwargs):
         super(AlgorithmicTradingEnvironment, self).__init__()
 
-        self.dataset = get_attr(kwargs, "dataset", None)
-        self.task = get_attr(kwargs, "task", "train")
-        self.test_dynamic=int(get_attr(kwargs, "test_dynamic", "-1"))
-        self.task_index = int(get_attr(kwargs, "task_index", "-1"))
-        self.work_dir=get_attr(kwargs, "work_dir", "")
+        self.dataset = pd.read_csv('btc.csv')
+        self.task = 'train'
+        self.test_dynamic= False
+        self.task_index = -1
+        # self.work_dir=get_attr(kwargs, "work_dir", "")
 
         self.df_path = None
         if self.task.startswith("train"):
@@ -36,13 +36,13 @@ class AlgorithmicTradingEnvironment(Environments):
             self.df_path = get_attr(self.dataset, "test_path", None)
 
         ##get data time interval
-        self.initial_amount = get_attr(self.dataset, "initial_amount", 100000)
-        self.transaction_cost_pct = get_attr(self.dataset, "transaction_cost_pct", 0.001)
-        self.tech_indicator_list = get_attr(self.dataset, "tech_indicator_list", [])
-        self.forward_num_day = get_attr(self.dataset, "forward_num_day", [])
-        self.backward_num_day = get_attr(self.dataset, "backward_num_day", [])
-        self.max_volume = get_attr(self.dataset, "max_volume", 1)
-        self.future_weights = get_attr(self.dataset, "future_weights", 0.2)
+        self.initial_amount = 100000
+        self.transaction_cost_pct = 0.001
+        self.tech_indicator_list = []
+        self.forward_num_day = 3
+        self.backward_num_day = 3
+        self.max_volume = 1
+        self.future_weights = 0.2
 
         if self.task.startswith("test_dynamic"):
             dynamics_test_path = get_attr(kwargs, "dynamics_test_path", None)
@@ -84,6 +84,7 @@ class AlgorithmicTradingEnvironment(Environments):
         self.state = np.array(self.state)
         self.test_id='agent'
         self.action_list = []
+        self.previous_action = -1
 
     def reset(self):
         # here is a little difference: we only have one asset
@@ -157,8 +158,8 @@ class AlgorithmicTradingEnvironment(Environments):
                         # "Sortino Ratio": ["{:04f}".format(sor)],
                     }
                 )
-            table = print_metrics(stats)
-            print(table)
+            # table = print_metrics(stats)
+            # print(table)
             df_return = self.save_portfolio_return_memory()
             daily_return = df_return.daily_return.values
             df_value = self.save_asset_memory()
@@ -192,9 +193,9 @@ class AlgorithmicTradingEnvironment(Environments):
             if action == 0:
                 print('selling')
                 self.action_list.append(action)
-            else if action == 1:
+            elif action == 1:
                 print('holding')
-            else if action == 2:
+            elif action == 2:
                 print('buying')
                 self.action_list.append(action)
             # print('buy_volume is: ', buy_volume, type(buy_volume))
@@ -242,18 +243,21 @@ class AlgorithmicTradingEnvironment(Environments):
             newer_price = self.df.iloc[self.day + self.forward_num_day -
                                        2].close
             gross_profit = new_price - old_price
-            #hindsight reward
+            # hindsight reward
             # self.reward = compound[1] * (
             #         (new_price - old_price) + self.future_weights *
             #         (newer_price - old_price))
-            if action == -1 and self.action_list[-1] == 2:
+            if action == 0 and  self.previous_action == 2:
                 if  gross_profit > 0:
-                    self.reward = 100
+                    self.reward = gross_profit 
                 else:
-                    self.reward = -100
+                    self.reward = gross_profit*2
             else:
+                self.reward = 0
 
-            print('reward is: ', self.reward)
+            if self.previous_action == action:
+                self.reward  = self.reward - 1000
+            print(f'gross profit: {gross_profit}, reward: {self.reward}')
             self.state = [
                 self.data[tech].values.tolist()
                 for tech in self.tech_indicator_list
@@ -268,6 +272,7 @@ class AlgorithmicTradingEnvironment(Environments):
             self.future_data = self.df.iloc[self.day - 1:self.day +
                                                          self.forward_num_day, :]
             self.date_memory.append(self.data.date.unique()[-1])
+            self.previous_action = action
             close_price_list = self.future_data.close.tolist()
             labels = []
             for i in range(len(close_price_list) - 1):
