@@ -37,10 +37,6 @@ class AlgorithmicTradingEnvironment(Environments):
 
         ##get data time interval
         self.initial_amount = get_attr(self.dataset, "initial_amount", 100000)
-        self.cash = self.initial_amount 
-        self.holding = 0
-        self.last_close = 0
-        self.net_return = []
         self.transaction_cost_pct = get_attr(self.dataset, "transaction_cost_pct", 0.001)
         self.tech_indicator_list = get_attr(self.dataset, "tech_indicator_list", [])
         self.forward_num_day = get_attr(self.dataset, "forward_num_day", [])
@@ -188,38 +184,83 @@ class AlgorithmicTradingEnvironment(Environments):
                 'buy_and_hold_assets':buy_and_hold_asset
             }
         else:
-            close_price = self.data.iloc[self.day, :].close
-            if action == 0: #selling
-                if self.holding > 1
-                    self.cash += close_price(1-self.transaction_cost_pct) 
-                    self.holding -= 1
-                    gross_return = (close_price(1-self.transaction_cost_pct) - self.last_close) 
-                    reward = gross_return
-
-            elif action == 2: #buying
-                if self.cash > close_price
-                    self.cash -= close_price(1+self.transaction_cost_pct) 
-                    self.holding += 1
-                    self.last_close = close_price
-                    self.reward = 0
-                    self.gross_return = 0
-
-            else: #holding
-                self.reward = 0
-                gross_return = 0
-
+            # self.actions_counter+=1
+            # print('self.actions_counter ',self.actions_counter)
+            buy_volume = action - self.max_volume
+            # print('buy_volume is: ', buy_volume, type(buy_volume))
+            hold_volume = self.compound_memory[-1][1] + buy_volume
+            # print('hold_volume is: ', hold_volume, type(hold_volume))
+            cash_variation_number = np.abs(hold_volume) - np.abs(
+                self.compound_memory[-1][1])
+            if cash_variation_number < 0:
+                # we sell some bitcioin and get some cash back, there is no such thing as we can not 
+                # pay for the commission fee
+                cash = self.compound_memory[-1][0] + np.abs(
+                    cash_variation_number) * self.data.iloc[-1, :].close * (
+                               1 - self.transaction_cost_pct)
+                hold_volume = hold_volume
+            else:
+                # we put more money into bitcoin and there is a chance that we could not afford it
+                if self.compound_memory[-1][0] > np.abs(
+                        buy_volume) * self.data.iloc[-1, :].close / (
+                        1 - self.transaction_cost_pct):
+                    #if we can afford it
+                    cash = self.compound_memory[-1][0] - np.abs(
+                        buy_volume) * self.data.iloc[-1, :].close / (
+                                   1 - self.transaction_cost_pct)
+                    hold_volume = hold_volume
+                else:
+                    # if we can not afford it
+                    max_trading = int(self.compound_memory[-1][0] /
+                                      (self.data.iloc[-1, :].close /
+                                       (1 - self.transaction_cost_pct)))
+                    buy_volume = (np.abs(buy_volume) /
+                                  buy_volume) * max_trading
+                    hold_volume = self.compound_memory[-1][1] + buy_volume
+                    cash = self.compound_memory[-1][0] - np.abs(
+                        buy_volume) * self.data.iloc[-1, :].close / (
+                                   1 - self.transaction_cost_pct)
+            compound = [cash, hold_volume]
+            self.compound_memory.append(compound)
+            old_price = self.data.iloc[-1, :].close
             self.day = self.day + 1
             # calculate the reward and next state
+            self.data = self.df.iloc[self.day -
+                                     self.backward_num_day:self.day, :]
+            new_price = self.data.iloc[-1, :].close
+            # -2来源：-1来自于df.iloc从0开始 -1来自于已经是新的self.day了 加过1了
+            newer_price = self.df.iloc[self.day + self.forward_num_day -
+                                       2].close
+            #hindsight reward
+            self.reward = compound[1] * (
+                    (new_price - old_price) + self.future_weights *
+                    (newer_price - old_price))
             self.state = [
                 self.data[tech].values.tolist()
                 for tech in self.tech_indicator_list
             ]
             self.state = np.array(self.state).reshape(-1).tolist()
-            self.state = self.state + [self.cash] + [self.holding]
+            self.state = self.state + self.compound_memory[-1]
             self.state = np.array(self.state)
+            self.portfolio_return_memory.append(compound[1] *
+                                                (new_price - old_price))
+            self.portfolio_value = compound[0] + compound[1] * (new_price)
+            self.asset_memory.append(self.portfolio_value)
+            self.future_data = self.df.iloc[self.day - 1:self.day +
+                                                         self.forward_num_day, :]
             self.date_memory.append(self.data.date.unique()[-1])
-            self.net_return.append(self.gross_return)
-            return self.state, self.reward, self.terminal, self.net_return
+            close_price_list = self.future_data.close.tolist()
+            labels = []
+            for i in range(len(close_price_list) - 1):
+                new_price = close_price_list[i + 1]
+                old_price = close_price_list[i]
+                return_rate = new_price / old_price - 1
+                labels.append(return_rate)
+            self.var = np.var(labels)
+
+            return self.state, self.reward, self.terminal, {
+                "volidality": self.var
+            }
 
     def save_portfolio_return_memory(self):
         # a record of return for each time stamp

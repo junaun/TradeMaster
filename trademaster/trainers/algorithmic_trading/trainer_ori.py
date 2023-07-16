@@ -158,7 +158,7 @@ class AlgorithmicTradingTrainer(Trainer):
                         break
                 valid_score_list.append(episode_reward_sum)
                 save_dict_list.append(save_dict)
-                return_rate_list.append(save_dict)
+                return_rate_list.append(save_dict['return_rate'])
 
                 save_model(self.checkpoints_path,
                            epoch=epoch,
