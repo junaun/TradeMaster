@@ -158,7 +158,7 @@ class AlgorithmicTradingTrainer(Trainer):
                         break
                 valid_score_list.append(episode_reward_sum)
                 save_dict_list.append(save_dict)
-                return_rate_list.append(save_dict)
+                return_rate_list.append(save_dict['return_rate'])
 
                 save_model(self.checkpoints_path,
                            epoch=epoch,
@@ -174,7 +174,7 @@ class AlgorithmicTradingTrainer(Trainer):
         # max_index = np.argmax(valid_score_list)
         max_index = np.argmax(return_rate_list)
         # plot the total asset against the baseline of the best epoch
-        # plot_metric_against_baseline(total_asset=save_dict_list[max_index]['total_assets'],buy_and_hold=save_dict_list[max_index]['buy_and_hold_assets'],alg='Deepscalper',task='valid',color='darkcyan',save_dir=self.work_dir)
+        plot_metric_against_baseline(total_asset=save_dict_list[max_index]['total_assets'],buy_and_hold=save_dict_list[max_index]['buy_and_hold_assets'],alg='Deepscalper',task='valid',color='darkcyan',save_dir=self.work_dir)
 
         load_model(self.checkpoints_path,
                    epoch=max_index + 1,
@@ -288,9 +288,9 @@ class AlgorithmicTradingTrainer(Trainer):
             episode_reward_sum += reward
             if done:
                 # print("Test Best Episode Reward Sum: {:04f}".format(episode_reward_sum))
-                # plot_metric_against_baseline(total_asset=save_dict['total_assets'],
-                #                              buy_and_hold=save_dict['buy_and_hold_assets'],
-                #                              alg='Deepscalper', task='test', color='darkcyan', save_dir=self.work_dir)
+                plot_metric_against_baseline(total_asset=save_dict['total_assets'],
+                                             buy_and_hold=save_dict['buy_and_hold_assets'],
+                                             alg='Deepscalper', task='test', color='darkcyan', save_dir=self.work_dir)
                 break
 
         rewards = self.test_environment.save_asset_memory()
